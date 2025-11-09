@@ -9,8 +9,8 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Readery admin",
-  description: "Readery admin page for update db",
+  title: "Test lib",
+  description: "test lib",
 };
 
 export default function RootLayout({

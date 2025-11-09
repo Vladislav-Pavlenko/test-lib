@@ -1,15 +1,85 @@
-.form{
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: system-ui, sans-serif;
 }
 
-.label{}
+.title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: #333;
+}
 
-.title{}
+.form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
 
-.field{}
+.input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
 
-.button{
+.buttonPrimary {
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
 
+.buttonPrimary:hover {
+    background-color: #0059c1;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.th,
+.td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.th {
+    background: #f3f3f3;
+    font-weight: 600;
+}
+
+.tr:hover {
+    background-color: #fafafa;
+}
+
+.a {
+    color: #0070f3;
+    text-decoration: none;
+}
+
+.a:hover {
+    text-decoration: underline;
+}
+
+.buttonDanger {
+    background: #e63946;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.buttonDanger:hover {
+    background: #c62828;
 }

@@ -1,156 +1,168 @@
 "use client";
-import { Formik, Form, Field } from "formik";
+import { useEffect, useState } from "react";
 import styles from "./page.module.css";
-import * as Yup from "yup";
-import { useId } from "react";
-import axios from "axios";
 
-interface FormikValues {
+interface Test {
+  id: number;
   title: string;
   description: string;
-  genre: string;
-  author: string;
-  image: File | null;
-  pdf: File | null;
+  subject: string;
+  topic: string;
+  grade: number;
+  link: string;
 }
 
-export default function Home() {
-  const fieldId = {
-    title: useId(),
-    description: useId(),
-    genre: useId(),
-    author: useId(),
-    image: useId(),
-    pdf: useId(),
-  };
-
-  const bookSchema = Yup.object({
-    title: Yup.string()
-      .min(2, "Title must be at least 2 character")
-      .max(150, "Title must be at most 150 character")
-      .required("Title is required"),
-    description: Yup.string()
-      .min(10, "Description must be at least 10 character")
-      .max(1000, "Description must be at most 1000 character")
-      .required("Description is required"),
-    genre: Yup.string()
-      .min(2, "Genre must be at least 2 character")
-      .max(100, "Genre must be at most 100 character")
-      .required("Genre is required"),
-    author: Yup.string()
-      .min(2, "Author must be at least 2 character")
-      .max(100, "Author must be at most 100 character")
-      .required("Author is required"),
+export default function TestLibrary() {
+  const [tests, setTests] = useState<Test[]>([]);
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    subject: "",
+    topic: "",
+    grade: 1,
+    link: "",
   });
 
-  const handleSubmit = async (values: FormikValues) => {
-    const formData = new FormData();
-    formData.append("title", values.title);
-    formData.append("description", values.description);
-    formData.append("genre", values.genre);
-    formData.append("author", values.author);
-    if (values.image) formData.append("image", values.image);
-    if (values.pdf) formData.append("pdf", values.pdf);
+  // Завантаження тестів при старті
+  useEffect(() => {
+    fetch("/api/tests")
+      .then((r) => r.json())
+      .then(setTests)
+      .catch(() => setTests([]));
+  }, []);
 
-    try {
-      const response = await axios.post("/api/books", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      console.log("✅ Success:", response.data);
-    } catch (error) {
-      console.error("❌ Error:", error);
+  // Додавання нового тесту
+  const addTest = async () => {
+    if (!form.title || !form.subject || !form.link) {
+      alert("Заповни обов’язкові поля: Назва, Предмет і Посилання!");
+      return;
     }
+
+    const res = await fetch("/api/tests", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    if (!res.ok) {
+      alert("Помилка при додаванні тесту");
+      return;
+    }
+
+    const newTest = await res.json();
+    setTests([newTest, ...tests]);
+    setForm({
+      title: "",
+      description: "",
+      subject: "",
+      topic: "",
+      grade: 1,
+      link: "",
+    });
   };
+
+  // Видалення тесту
+  const deleteTest = async (id: number) => {
+    if (!confirm("Видалити цей тест?")) return;
+    await fetch(`/api/tests?id=${id}`, { method: "DELETE" });
+    setTests(tests.filter((t) => t.id !== id));
+  };
+
   return (
-    <main>
-      <Formik
-        initialValues={{
-          title: "",
-          description: "",
-          genre: "",
-          author: "",
-          image: null,
-          pdf: null,
-        }}
-        onSubmit={handleSubmit}
-        validationSchema={bookSchema}
-      >
-        {({ setFieldValue }) => (
-          <Form className={styles.form}>
-            <label className={styles.label} htmlFor={fieldId.title}>
-              <span className={styles.title}>Title</span>
-              <Field
-                className={styles.field}
-                name="title"
-                type="text"
-                id={fieldId.title}
-              />
-            </label>
+    <div className={styles.container}>
+      <h1 className={styles.title}>📚 Бібліотека тестів</h1>
 
-            <label className={styles.label} htmlFor={fieldId.description}>
-              <span className={styles.title}>Description</span>
-              <Field
-                className={styles.field}
-                name="description"
-                type="text"
-                id={fieldId.description}
-              />
-            </label>
+      <div className={styles.form}>
+        <input
+          className={styles.input}
+          placeholder="Назва тесту"
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+        />
+        <input
+          className={styles.input}
+          placeholder="Предмет"
+          value={form.subject}
+          onChange={(e) => setForm({ ...form, subject: e.target.value })}
+        />
+        <input
+          className={styles.input}
+          placeholder="Тема"
+          value={form.topic}
+          onChange={(e) => setForm({ ...form, topic: e.target.value })}
+        />
+        <input
+          className={styles.input}
+          type="number"
+          min="1"
+          max="11"
+          placeholder="Клас"
+          value={form.grade}
+          onChange={(e) => setForm({ ...form, grade: Number(e.target.value) })}
+        />
+        <input
+          className={styles.input}
+          placeholder="Опис"
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+        />
+        <input
+          className={styles.input}
+          placeholder="Посилання на тест"
+          value={form.link}
+          onChange={(e) => setForm({ ...form, link: e.target.value })}
+        />
+        <button onClick={addTest} className={styles.buttonPrimary}>
+          ➕ Додати тест
+        </button>
+      </div>
 
-            <label className={styles.label} htmlFor={fieldId.genre}>
-              <span className={styles.title}>Genre</span>
-              <Field
-                className={styles.field}
-                name="genre"
-                type="text"
-                id={fieldId.genre}
-              />
-            </label>
-
-            <label className={styles.label} htmlFor={fieldId.author}>
-              <span className={styles.title}>Author</span>
-              <Field
-                className={styles.field}
-                name="author"
-                type="text"
-                id={fieldId.author}
-              />
-            </label>
-
-            <label className={styles.label} htmlFor={fieldId.image}>
-              <span className={styles.title}>Image</span>
-              <input
-                className={styles.field}
-                name="image"
-                type="file"
-                accept="image/*"
-                id={fieldId.image}
-                onChange={(event) => {
-                  setFieldValue("image", event.currentTarget.files?.[0]);
-                }}
-              />
-            </label>
-
-            <label className={styles.label} htmlFor={fieldId.pdf}>
-              <span className={styles.title}>PDF</span>
-              <input
-                className={styles.field}
-                name="pdf"
-                type="file"
-                accept="application/pdf"
-                id={fieldId.pdf}
-                onChange={(event) => {
-                  setFieldValue("pdf", event.currentTarget.files?.[0]);
-                }}
-              />
-            </label>
-
-            <button className={styles.button} type="submit">
-              Submit
-            </button>
-          </Form>
-        )}
-      </Formik>
-    </main>
+      {tests.length === 0 ? (
+        <p className={styles.empty}>Поки що немає тестів 😔</p>
+      ) : (
+        <table className={styles.table}>
+          <thead>
+            <tr className={styles.tr}>
+              <th className={styles.th}>Назва</th>
+              <th className={styles.th}>Предмет</th>
+              <th className={styles.th}>Тема</th>
+              <th className={styles.th}>Клас</th>
+              <th className={styles.th}>Опис</th>
+              <th className={styles.th}>Посилання</th>
+              <th className={styles.th}>Дія</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tests.map((t) => (
+              <tr className={styles.tr} key={t.id}>
+                <td className={styles.td}>{t.title}</td>
+                <td className={styles.td}>{t.subject}</td>
+                <td className={styles.td}>{t.topic}</td>
+                <td className={styles.td}>{t.grade}</td>
+                <td className={styles.td}>{t.description}</td>
+                <td className={styles.td}>
+                  <a
+                    className={styles.a}
+                    href={t.link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Відкрити
+                  </a>
+                </td>
+                <td className={styles.td}>
+                  <button
+                    className={styles.buttonDanger}
+                    onClick={() => deleteTest(t.id)}
+                  >
+                    Видалити
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
   );
 }

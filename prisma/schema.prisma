@@ -8,14 +8,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Book {
+model Test {
   id          Int      @id @default(autoincrement())
   title       String
   description String
-  genre       String
-  author      String
-  pdfUrl      String
-  imageUrl    String
+  subject     String
+  topic       String
+  grade       Int
+  link        String
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }

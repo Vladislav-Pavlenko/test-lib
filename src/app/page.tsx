@@ -2,6 +2,11 @@
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 
+interface Genre {
+  id: number;
+  name: string;
+}
+
 interface Test {
   id: number;
   title: string;
@@ -10,9 +15,11 @@ interface Test {
   topic: string;
   grade: number;
   link: string;
+  genreId: number;
+  genre: Genre;
 }
 
-export default function TestLibrary() {
+export default function Page() {
   const [tests, setTests] = useState<Test[]>([]);
   const [form, setForm] = useState({
     title: "",
@@ -21,9 +28,9 @@ export default function TestLibrary() {
     topic: "",
     grade: 1,
     link: "",
+    genreName: "",
   });
 
-  // Завантаження тестів при старті
   useEffect(() => {
     fetch("/api/tests")
       .then((r) => r.json())
@@ -31,17 +38,24 @@ export default function TestLibrary() {
       .catch(() => setTests([]));
   }, []);
 
-  // Додавання нового тесту
   const addTest = async () => {
-    if (!form.title || !form.subject || !form.link) {
-      alert("Заповни обов’язкові поля: Назва, Предмет і Посилання!");
+    if (!form.title || !form.subject || !form.link || !form.genreName) {
+      alert("Заповни обов’язкові поля: Назва, Предмет, Посилання та Жанр!");
       return;
     }
+
+    const resGenre = await fetch("/api/genres", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: form.genreName }),
+    });
+    const genre = await resGenre.json();
+    const genreId = genre.id;
 
     const res = await fetch("/api/tests", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, genreId }),
     });
 
     if (!res.ok) {
@@ -58,10 +72,10 @@ export default function TestLibrary() {
       topic: "",
       grade: 1,
       link: "",
+      genreName: "",
     });
   };
 
-  // Видалення тесту
   const deleteTest = async (id: number) => {
     if (!confirm("Видалити цей тест?")) return;
     await fetch(`/api/tests?id=${id}`, { method: "DELETE" });
@@ -112,6 +126,12 @@ export default function TestLibrary() {
           value={form.link}
           onChange={(e) => setForm({ ...form, link: e.target.value })}
         />
+        <input
+          className={styles.input}
+          placeholder="Жанр / предмет тесту"
+          value={form.genreName}
+          onChange={(e) => setForm({ ...form, genreName: e.target.value })}
+        />
         <button onClick={addTest} className={styles.buttonPrimary}>
           ➕ Додати тест
         </button>
@@ -128,6 +148,7 @@ export default function TestLibrary() {
               <th className={styles.th}>Тема</th>
               <th className={styles.th}>Клас</th>
               <th className={styles.th}>Опис</th>
+              <th className={styles.th}>Жанр</th>
               <th className={styles.th}>Посилання</th>
               <th className={styles.th}>Дія</th>
             </tr>
@@ -140,6 +161,7 @@ export default function TestLibrary() {
                 <td className={styles.td}>{t.topic}</td>
                 <td className={styles.td}>{t.grade}</td>
                 <td className={styles.td}>{t.description}</td>
+                <td className={styles.td}>{t.genre?.name || "—"}</td>
                 <td className={styles.td}>
                   <a
                     className={styles.a}

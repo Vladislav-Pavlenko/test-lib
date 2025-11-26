@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../prisma/prisma";
 
-// ----------------- GET — отримання тестів з фільтрами -----------------
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -36,7 +35,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ----------------- POST — створення нового тесту -----------------
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
@@ -75,7 +73,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ----------------- PUT — редагування тесту -----------------
 export async function PUT(req: NextRequest) {
   try {
     const data = await req.json();
@@ -110,7 +107,6 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-// ----------------- DELETE — видалення тесту -----------------
 export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);

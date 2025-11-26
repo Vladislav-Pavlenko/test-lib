@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../prisma/prisma";
 
-// GET — список авторів
 export async function GET() {
   const authors = await prisma.author.findMany({
     orderBy: { name: "asc" },
@@ -9,7 +8,6 @@ export async function GET() {
   return NextResponse.json(authors);
 }
 
-// POST — додати нового автора
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
@@ -30,7 +28,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// PUT — редагувати автора
 export async function PUT(req: NextRequest) {
   try {
     const data = await req.json();
@@ -56,7 +53,6 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-// DELETE — видалити автора
 export async function DELETE(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const id = Number(searchParams.get("id"));

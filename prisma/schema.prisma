@@ -8,7 +8,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Genre {
+model Subject {
+  id    Int    @id @default(autoincrement())
+  name  String
+  tests Test[]
+}
+
+model Author {
   id    Int    @id @default(autoincrement())
   name  String
   tests Test[]
@@ -18,11 +24,14 @@ model Test {
   id          Int      @id @default(autoincrement())
   title       String
   description String
-  subject     String
   topic       String
   grade       Int
   link        String
   createdAt   DateTime @default(now())
-  genreId     Int
-  genre       Genre    @relation(fields: [genreId], references: [id])
+
+  subjectId  Int
+  subjectRel Subject @relation(fields: [subjectId], references: [id])
+
+  authorId Int?
+  author   Author? @relation(fields: [authorId], references: [id])
 }
